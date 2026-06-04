@@ -120,6 +120,9 @@ export default function FinancialsPage() {
   const pnlCache = useRef(new Map<string, PnlData>());
   const cfCache = useRef(new Map<string, CashFlowData>());
   const budgetCache = useRef(new Map<string, BudgetData>());
+  const pnlReqId = useRef(0);
+  const cfReqId = useRef(0);
+  const budgetReqId = useRef(0);
 
   const fetchPnl = useCallback(async (from?: string, to?: string, period?: string) => {
     const params = new URLSearchParams();
@@ -129,14 +132,14 @@ export default function FinancialsPage() {
     const qs = params.toString() ? `?${params.toString()}` : "";
     const res = await fetch(`/api/income-statement${qs}`);
     const data = await res.json();
-    pnlCache.current.set(qs, data);
+    if (res.ok) pnlCache.current.set(qs, data);
     return data;
   }, []);
 
   const fetchCf = useCallback(async (p: string) => {
     const res = await fetch(`/api/cash-flow?period=${p}`);
     const data = await res.json();
-    cfCache.current.set(p, data);
+    if (res.ok) cfCache.current.set(p, data);
     return data;
   }, []);
 
@@ -147,7 +150,7 @@ export default function FinancialsPage() {
     const qs = params.toString() ? `?${params.toString()}` : "";
     const res = await fetch(`/api/budget${qs}`);
     const data = await res.json();
-    budgetCache.current.set(qs, data);
+    if (res.ok) budgetCache.current.set(qs, data);
     return data;
   }, []);
 
@@ -177,6 +180,7 @@ export default function FinancialsPage() {
   }, [fetchPnl, fetchCf, fetchBudget]);
 
   async function handlePnlRange(from: string, to: string, period: string) {
+    const id = ++pnlReqId.current;
     const params = new URLSearchParams();
     if (from) params.set("from", from);
     if (to) params.set("to", to);
@@ -186,35 +190,45 @@ export default function FinancialsPage() {
     if (cached) {
       setPnlData(cached);
       setRefreshing(true);
-      fetchPnl(from, to, period).then(setPnlData).catch(console.error).finally(() => setRefreshing(false));
+      fetchPnl(from, to, period)
+        .then((d) => { if (pnlReqId.current === id) setPnlData(d); })
+        .catch(console.error)
+        .finally(() => { if (pnlReqId.current === id) setRefreshing(false); });
       return;
     }
     setRefreshing(true);
     try {
-      setPnlData(await fetchPnl(from, to, period));
+      const d = await fetchPnl(from, to, period);
+      if (pnlReqId.current === id) setPnlData(d);
     } finally {
-      setRefreshing(false);
+      if (pnlReqId.current === id) setRefreshing(false);
     }
   }
 
   async function handleCfPeriod(p: "mtd" | "ytd") {
+    const id = ++cfReqId.current;
     setCfPeriod(p);
     const cached = cfCache.current.get(p);
     if (cached) {
       setCfData(cached);
       setRefreshing(true);
-      fetchCf(p).then(setCfData).catch(console.error).finally(() => setRefreshing(false));
+      fetchCf(p)
+        .then((d) => { if (cfReqId.current === id) setCfData(d); })
+        .catch(console.error)
+        .finally(() => { if (cfReqId.current === id) setRefreshing(false); });
       return;
     }
     setRefreshing(true);
     try {
-      setCfData(await fetchCf(p));
+      const d = await fetchCf(p);
+      if (cfReqId.current === id) setCfData(d);
     } finally {
-      setRefreshing(false);
+      if (cfReqId.current === id) setRefreshing(false);
     }
   }
 
   async function handleBudgetRange(from: string, to: string) {
+    const id = ++budgetReqId.current;
     const params = new URLSearchParams();
     if (from) params.set("from", from);
     if (to) params.set("to", to);
@@ -223,14 +237,18 @@ export default function FinancialsPage() {
     if (cached) {
       setBudgetData(cached);
       setRefreshing(true);
-      fetchBudget(from, to).then(setBudgetData).catch(console.error).finally(() => setRefreshing(false));
+      fetchBudget(from, to)
+        .then((d) => { if (budgetReqId.current === id) setBudgetData(d); })
+        .catch(console.error)
+        .finally(() => { if (budgetReqId.current === id) setRefreshing(false); });
       return;
     }
     setRefreshing(true);
     try {
-      setBudgetData(await fetchBudget(from, to));
+      const d = await fetchBudget(from, to);
+      if (budgetReqId.current === id) setBudgetData(d);
     } finally {
-      setRefreshing(false);
+      if (budgetReqId.current === id) setRefreshing(false);
     }
   }
 

@@ -1,8 +1,10 @@
 /**
  * Park Vista Senior Housing Management — Community Definitions
  *
- * 8 communities across WI, IA, and IL offering independent living,
+ * 14 communities across WI, IA, and IL offering independent living,
  * assisted living, and memory care.
+ *
+ * Names MUST match AppFolio property_name exactly for API lookups.
  */
 
 export interface Community {
@@ -15,6 +17,55 @@ export interface Community {
 
 export const COMMUNITIES: Community[] = [
   {
+    name: "Arborcreek Apartments",
+    slug: "arborcreek-apartments",
+    location: "WI",
+    state: "Wisconsin",
+    careTypes: ["Independent Living"],
+  },
+  {
+    name: "Arborview Court",
+    slug: "arborview-court",
+    location: "WI",
+    state: "Wisconsin",
+    careTypes: ["Independent Living"],
+  },
+  {
+    name: "Arborwood Lodge",
+    slug: "arborwood-lodge",
+    location: "WI",
+    state: "Wisconsin",
+    careTypes: ["Assisted Living"],
+  },
+  {
+    name: "Camanche",
+    slug: "camanche",
+    location: "IA",
+    state: "Iowa",
+    careTypes: ["Independent Living", "Assisted Living"],
+  },
+  {
+    name: "Legacy",
+    slug: "legacy",
+    location: "IA",
+    state: "Iowa",
+    careTypes: ["Memory Care"],
+  },
+  {
+    name: "Legacy at Noel Manor",
+    slug: "legacy-at-noel-manor",
+    location: "WI",
+    state: "Wisconsin",
+    careTypes: ["Memory Care"],
+  },
+  {
+    name: "Legacy of DeForest",
+    slug: "legacy-of-deforest",
+    location: "WI",
+    state: "Wisconsin",
+    careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+  },
+  {
     name: "Noel Manor",
     slug: "noel-manor",
     location: "WI",
@@ -22,46 +73,39 @@ export const COMMUNITIES: Community[] = [
     careTypes: ["Independent Living", "Assisted Living"],
   },
   {
-    name: "Noel Manor The Legacy",
-    slug: "noel-manor-legacy",
-    location: "WI",
-    state: "Wisconsin",
-    careTypes: ["Memory Care"],
-  },
-  {
-    name: "Park Vista Camanche",
-    slug: "park-vista-camanche",
+    name: "North Hill",
+    slug: "north-hill",
     location: "IA",
     state: "Iowa",
     careTypes: ["Independent Living", "Assisted Living"],
   },
   {
-    name: "Park Vista North Hill",
-    slug: "park-vista-north-hill",
+    name: "Regency Retirement Residence of Clinton",
+    slug: "regency-retirement-clinton",
     location: "IA",
     state: "Iowa",
     careTypes: ["Independent Living", "Assisted Living"],
   },
   {
-    name: "Park Vista The Legacy",
-    slug: "park-vista-legacy",
-    location: "IA",
-    state: "Iowa",
-    careTypes: ["Memory Care"],
-  },
-  {
-    name: "Park Vista Waupaca",
-    slug: "park-vista-waupaca",
+    name: "The Lodge at Whispering Pines",
+    slug: "the-lodge-at-whispering-pines",
     location: "WI",
     state: "Wisconsin",
     careTypes: ["Independent Living", "Assisted Living"],
   },
   {
-    name: "The Legacy of DeForest",
-    slug: "legacy-of-deforest",
+    name: "Waupaca",
+    slug: "waupaca",
     location: "WI",
     state: "Wisconsin",
-    careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+    careTypes: ["Independent Living", "Assisted Living"],
+  },
+  {
+    name: "Whispering Pines",
+    slug: "whispering-pines",
+    location: "WI",
+    state: "Wisconsin",
+    careTypes: ["Independent Living"],
   },
   {
     name: "Willow Lane",

@@ -46,7 +46,7 @@ interface PortfolioKPI {
 interface KPIData {
   portfolio: PortfolioKPI;
   communities: CommunityKPI[];
-  period: { from: string; to: string; label: string };
+  period: { from: string; to: string; label: string; monthsElapsed: number };
 }
 
 const fmtK = (n: number) =>
@@ -181,8 +181,9 @@ export default function KPIDashboardPage() {
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {communities.filter((c) => c.totalUnits > 0).map((c) => {
-                const revpou = c.occupied > 0 ? Math.round(c.revenue / c.occupied / 3) : 0;
-                const revpau = c.totalUnits > 0 ? Math.round(c.revenue / c.totalUnits / 3) : 0;
+                const months = data.period.monthsElapsed || 1;
+                const revpou = c.occupied > 0 ? Math.round(c.revenue / c.occupied / months) : 0;
+                const revpau = c.totalUnits > 0 ? Math.round(c.revenue / c.totalUnits / months) : 0;
                 return (
                   <tr key={c.slug} className="hover:bg-gray-50 dark:hover:bg-gray-750">
                     <td className="px-4 py-3">
@@ -236,7 +237,7 @@ export default function KPIDashboardPage() {
                       {c.name}
                     </Link>
                   </td>
-                  <td className={`px-3 py-3 text-right font-mono font-semibold ${c.dscr >= 1.25 ? "text-emerald-600" : c.dscr >= 1.0 ? "text-amber-600" : "text-red-600"}`}>
+                  <td className={`px-3 py-3 text-right font-mono font-semibold ${c.dscr === 0 ? "text-gray-400" : c.dscr >= 1.25 ? "text-emerald-600" : c.dscr >= 1.0 ? "text-amber-600" : "text-red-600"}`}>
                     {c.dscr > 0 ? `${c.dscr}x` : "—"}
                   </td>
                   <td className={`px-3 py-3 text-right font-mono ${c.oer <= 70 ? "text-emerald-600" : c.oer <= 80 ? "text-amber-600" : "text-red-600"}`}>

@@ -1,4 +1,4 @@
-import { fetchReport, firstOfQuarter, today, parseAmount, cachedJson } from "@/lib/appfolio";
+import { fetchReport, firstOfQuarter, today, parseAmount, cachedJson, centralNowExported } from "@/lib/appfolio";
 import { COMMUNITIES } from "@/lib/communities";
 
 interface RentRollRow {
@@ -150,6 +150,11 @@ export async function GET() {
     const concernCount = communities.filter((c) => c.status === "Concern").length;
     const watchCount = communities.filter((c) => c.status === "Watch").length;
 
+    // Calculate months elapsed in QTD for accurate per-month calculations
+    const now = centralNowExported();
+    const quarterStartMonth = Math.floor(now.getMonth() / 3) * 3;
+    const monthsElapsed = now.getMonth() - quarterStartMonth + 1;
+
     return cachedJson({
       portfolio: {
         revenue: portfolioRevenue,
@@ -171,6 +176,7 @@ export async function GET() {
         from: qtdFrom,
         to: ytdTo,
         label: "QTD",
+        monthsElapsed,
       },
     });
   } catch (err) {

@@ -11,6 +11,10 @@ function centralNow(): Date {
   );
 }
 
+export function centralNowExported(): Date {
+  return centralNow();
+}
+
 export function today(): string {
   const d = centralNow();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;

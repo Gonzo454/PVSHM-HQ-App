@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { fetchReport, firstOfMonth, today, parseAmount } from "@/lib/appfolio";
+import { fetchReport, firstOfMonth, today, parseAmount, cachedJson } from "@/lib/appfolio";
 import { getCommunityBySlug } from "@/lib/communities";
 
 interface IncomeRow {
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
         properties: propertyFilter,
       });
       const extracted = extractTotals(rows, "year_to_date");
-      return Response.json({
+      return cachedJson({
         communityName,
         totalIncome: Math.round(extracted.totalIncome),
         totalExpenses: Math.round(extracted.totalExpenses),
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
         properties: propertyFilter,
       });
       const extracted = extractTotals(rows, "month_to_date");
-      return Response.json({
+      return cachedJson({
         communityName,
         totalIncome: Math.round(extracted.totalIncome),
         totalExpenses: Math.round(extracted.totalExpenses),
@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
     const endTotals = extractTotals(endRows, "year_to_date");
     const startTotals = extractTotals(startRows, "year_to_date");
 
-    return Response.json({
+    return cachedJson({
       communityName,
       totalIncome: Math.round(endTotals.totalIncome - startTotals.totalIncome),
       totalExpenses: Math.round(endTotals.totalExpenses - startTotals.totalExpenses),

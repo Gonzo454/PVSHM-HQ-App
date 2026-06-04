@@ -1,4 +1,4 @@
-import { fetchReport, parseAmount } from "@/lib/appfolio";
+import { fetchReport, parseAmount, cachedJson } from "@/lib/appfolio";
 
 interface ARRow {
   payer_name?: string;
@@ -78,7 +78,7 @@ export async function GET() {
       tenantCount: tenants.length,
     };
 
-    return Response.json({ summary, tenants });
+    return cachedJson({ summary, tenants });
   } catch (err) {
     return Response.json(
       { error: err instanceof Error ? err.message : "Unknown error" },

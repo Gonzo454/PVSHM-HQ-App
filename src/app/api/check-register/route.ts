@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { fetchReport, firstOfMonth, today, parseAmount } from "@/lib/appfolio";
+import { fetchReport, firstOfMonth, today, parseAmount, cachedJson } from "@/lib/appfolio";
 
 interface CheckRow {
   vendor_name?: string;
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
 
     const totalDisbursed = checks.reduce((sum, c) => sum + c.total, 0);
 
-    return Response.json({ checks, totalDisbursed, period: { from, to } });
+    return cachedJson({ checks, totalDisbursed, period: { from, to } });
   } catch (err) {
     return Response.json(
       { error: err instanceof Error ? err.message : "Unknown error" },

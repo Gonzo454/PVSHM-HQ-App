@@ -1,4 +1,4 @@
-import { fetchReport, parseAmount } from "@/lib/appfolio";
+import { fetchReport, parseAmount, cachedJson } from "@/lib/appfolio";
 
 interface RentRollRow {
   property_name?: string;
@@ -34,7 +34,7 @@ export async function GET() {
     ).length;
     const vacant = totalUnits - occupied;
 
-    return Response.json({ units, summary: { totalUnits, occupied, vacant } });
+    return cachedJson({ units, summary: { totalUnits, occupied, vacant } });
   } catch (err) {
     return Response.json(
       { error: err instanceof Error ? err.message : "Unknown error" },

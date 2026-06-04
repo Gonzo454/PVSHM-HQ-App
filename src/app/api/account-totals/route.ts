@@ -1,4 +1,4 @@
-import { fetchReport, parseAmount } from "@/lib/appfolio";
+import { fetchReport, parseAmount, cachedJson } from "@/lib/appfolio";
 import { getCommunityByName } from "@/lib/communities";
 
 interface AccountTotalRow {
@@ -25,7 +25,7 @@ export async function GET() {
         };
       });
 
-    return Response.json({ properties });
+    return cachedJson({ properties });
   } catch (err) {
     return Response.json(
       { error: err instanceof Error ? err.message : "Unknown error" },

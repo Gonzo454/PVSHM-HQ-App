@@ -1,4 +1,4 @@
-import { fetchReport, parseAmount } from "@/lib/appfolio";
+import { fetchReport, parseAmount, cachedJson } from "@/lib/appfolio";
 
 interface RentRollRow {
   property_name?: string;
@@ -56,7 +56,7 @@ export async function GET() {
       ),
     };
 
-    return Response.json({ summary, buckets, leases });
+    return cachedJson({ summary, buckets, leases });
   } catch (err) {
     return Response.json(
       { error: err instanceof Error ? err.message : "Unknown error" },

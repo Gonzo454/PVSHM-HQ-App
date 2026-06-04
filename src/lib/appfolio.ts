@@ -67,6 +67,14 @@ export async function fetchReport<T = Record<string, unknown>>(
   return rows as T[];
 }
 
+const EDGE_CACHE_HEADERS = {
+  "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+};
+
+export function cachedJson(data: unknown, status = 200): Response {
+  return Response.json(data, { status, headers: EDGE_CACHE_HEADERS });
+}
+
 export function parseAmount(v: string | number | null | undefined): number {
   if (v === undefined || v === null || v === "") return 0;
   const n =

@@ -1,4 +1,4 @@
-import { fetchReport, firstOfYear, today, parseAmount } from "@/lib/appfolio";
+import { fetchReport, firstOfYear, today, parseAmount, cachedJson } from "@/lib/appfolio";
 import { COMMUNITIES } from "@/lib/communities";
 
 interface RentRollRow {
@@ -97,7 +97,7 @@ export async function GET() {
     // Aged receivables total
     const agedReceivables = arRows.reduce((sum, r) => sum + parseAmount(r.total_amount), 0);
 
-    return Response.json({
+    return cachedJson({
       communities,
       portfolio: {
         totalIncome,

@@ -112,9 +112,14 @@ export default function FinancialsPage() {
   const [cfData, setCfData] = useState<CashFlowData | null>(null);
   const [budgetData, setBudgetData] = useState<BudgetData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [cfPeriod, setCfPeriod] = useState<"mtd" | "ytd">("mtd");
   const [budgetMode, setBudgetMode] = useState<"all" | "operating">("operating");
   const initialized = useRef(false);
+
+  const pnlCache = useRef(new Map<string, PnlData>());
+  const cfCache = useRef(new Map<string, CashFlowData>());
+  const budgetCache = useRef(new Map<string, BudgetData>());
 
   const fetchPnl = useCallback(async (from?: string, to?: string, period?: string) => {
     const params = new URLSearchParams();
@@ -123,12 +128,16 @@ export default function FinancialsPage() {
     if (period) params.set("period", period);
     const qs = params.toString() ? `?${params.toString()}` : "";
     const res = await fetch(`/api/income-statement${qs}`);
-    return res.json();
+    const data = await res.json();
+    pnlCache.current.set(qs, data);
+    return data;
   }, []);
 
   const fetchCf = useCallback(async (p: string) => {
     const res = await fetch(`/api/cash-flow?period=${p}`);
-    return res.json();
+    const data = await res.json();
+    cfCache.current.set(p, data);
+    return data;
   }, []);
 
   const fetchBudget = useCallback(async (from?: string, to?: string) => {
@@ -137,7 +146,9 @@ export default function FinancialsPage() {
     if (to) params.set("to", to);
     const qs = params.toString() ? `?${params.toString()}` : "";
     const res = await fetch(`/api/budget${qs}`);
-    return res.json();
+    const data = await res.json();
+    budgetCache.current.set(qs, data);
+    return data;
   }, []);
 
   useEffect(() => {
@@ -151,34 +162,75 @@ export default function FinancialsPage() {
         setBudgetData(budget);
       })
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        // Prefetch QTD and YTD in background for instant switching
+        const d = new Date();
+        const q = Math.floor(d.getMonth() / 3) * 3;
+        const qtdFrom = `${d.getFullYear()}-${String(q + 1).padStart(2, "0")}-01`;
+        const ytdFrom = `${d.getFullYear()}-01-01`;
+        const todayStr = d.toISOString().split("T")[0];
+        fetchPnl(qtdFrom, todayStr, "qtd").catch(() => {});
+        fetchPnl(ytdFrom, todayStr, "ytd").catch(() => {});
+        fetchCf("ytd").catch(() => {});
+      });
   }, [fetchPnl, fetchCf, fetchBudget]);
 
   async function handlePnlRange(from: string, to: string, period: string) {
-    setLoading(true);
+    const params = new URLSearchParams();
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    if (period) params.set("period", period);
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    const cached = pnlCache.current.get(qs);
+    if (cached) {
+      setPnlData(cached);
+      setRefreshing(true);
+      fetchPnl(from, to, period).then(setPnlData).catch(console.error).finally(() => setRefreshing(false));
+      return;
+    }
+    setRefreshing(true);
     try {
       setPnlData(await fetchPnl(from, to, period));
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
   }
 
   async function handleCfPeriod(p: "mtd" | "ytd") {
     setCfPeriod(p);
-    setLoading(true);
+    const cached = cfCache.current.get(p);
+    if (cached) {
+      setCfData(cached);
+      setRefreshing(true);
+      fetchCf(p).then(setCfData).catch(console.error).finally(() => setRefreshing(false));
+      return;
+    }
+    setRefreshing(true);
     try {
       setCfData(await fetchCf(p));
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
   }
 
   async function handleBudgetRange(from: string, to: string) {
-    setLoading(true);
+    const params = new URLSearchParams();
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    const cached = budgetCache.current.get(qs);
+    if (cached) {
+      setBudgetData(cached);
+      setRefreshing(true);
+      fetchBudget(from, to).then(setBudgetData).catch(console.error).finally(() => setRefreshing(false));
+      return;
+    }
+    setRefreshing(true);
     try {
       setBudgetData(await fetchBudget(from, to));
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
   }
 
@@ -308,14 +360,20 @@ export default function FinancialsPage() {
         </div>
       </div>
 
+      {refreshing && (
+        <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
+          <div className="h-full w-1/3 bg-teal-500 rounded animate-pulse" />
+        </div>
+      )}
+
       {loading ? (
         <div className="text-center py-20 text-gray-500">Loading...</div>
       ) : (
-        <>
+        <div className={refreshing ? "opacity-70 transition-opacity duration-200" : "transition-opacity duration-200"}>
           {activeTab === "pnl" && pnlData && <PnlTab data={pnlData} />}
           {activeTab === "cashflow" && cfData && <CashFlowTab data={cfData} />}
           {activeTab === "budget" && budgetData && <BudgetTab data={budgetData} mode={budgetMode} />}
-        </>
+        </div>
       )}
     </div>
   );

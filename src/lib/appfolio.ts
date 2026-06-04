@@ -11,6 +11,10 @@ function centralNow(): Date {
   );
 }
 
+export function centralNowExported(): Date {
+  return centralNow();
+}
+
 export function today(): string {
   const d = centralNow();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -23,6 +27,12 @@ export function firstOfMonth(): string {
 
 export function firstOfYear(): string {
   return `${centralNow().getFullYear()}-01-01`;
+}
+
+export function firstOfQuarter(): string {
+  const d = centralNow();
+  const q = Math.floor(d.getMonth() / 3) * 3;
+  return `${d.getFullYear()}-${String(q + 1).padStart(2, "0")}-01`;
 }
 
 export async function fetchReport<T = Record<string, unknown>>(
@@ -80,4 +90,12 @@ export function parseAmount(v: string | number | null | undefined): number {
   const n =
     typeof v === "string" ? parseFloat(v.replace(/[,$]/g, "")) : parseFloat(String(v));
   return isNaN(n) ? 0 : n;
+}
+
+const EDGE_CACHE_HEADERS = {
+  "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+};
+
+export function cachedJson(data: unknown, status = 200): Response {
+  return Response.json(data, { status, headers: EDGE_CACHE_HEADERS });
 }

@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { fetchReport, firstOfMonth, today, parseAmount } from "@/lib/appfolio";
+import { getCommunityBySlug } from "@/lib/communities";
 
 interface IncomeRow {
   account_name?: string;
@@ -74,13 +75,17 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: "community parameter required" }, { status: 400 });
   }
 
+  // Resolve slug to community name if needed
+  const resolved = getCommunityBySlug(communityName);
+  const lookupName = resolved ? resolved.name : communityName;
+
   try {
     const allProperties = await fetchReport<AccountTotalsRow>("account_totals", {
       posted_on_from: from,
       posted_on_to: to,
     });
     const match = allProperties.find(
-      (p) => p.property_name === communityName
+      (p) => p.property_name === lookupName
     );
     if (!match?.property_id) {
       return Response.json(

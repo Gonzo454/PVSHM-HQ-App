@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
 
     const openaiMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       { role: "system", content: getSystemPrompt() },
-      ...messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+      ...messages.filter((m) => m.role === "user" || m.role === "assistant").map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
     ];
 
     let response = await getClient().chat.completions.create({

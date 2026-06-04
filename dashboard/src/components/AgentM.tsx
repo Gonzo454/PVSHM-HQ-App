@@ -65,6 +65,11 @@ export function AgentM() {
     }
   }, [messages, loading]);
 
+  const sendMessageRef = useRef(sendMessage);
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
+
   function toggleVoice() {
     if (listening) {
       recognitionRef.current?.stop();
@@ -87,7 +92,7 @@ export function AgentM() {
       const transcript = event.results[0][0].transcript;
       setInput(transcript);
       setListening(false);
-      sendMessage(transcript);
+      sendMessageRef.current(transcript);
     };
 
     recognition.onerror = () => {
@@ -256,8 +261,12 @@ export function AgentM() {
   );
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 function formatMarkdown(text: string): string {
-  return text
+  return escapeHtml(text)
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/`(.*?)`/g, '<code class="bg-gray-200 dark:bg-gray-700 px-1 rounded text-xs">$1</code>')

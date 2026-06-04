@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const communityNav = [
   { href: "/communities", label: "All Communities", icon: "🏘️" },
+  { href: "/kpi-dashboard", label: "KPI Dashboard", icon: "📈" },
   { href: "/financials", label: "Financial Reports", icon: "💰" },
   { href: "/aged-receivables", label: "Aged Receivables", icon: "⏰" },
   { href: "/lease-expirations", label: "Lease Expirations", icon: "📅" },

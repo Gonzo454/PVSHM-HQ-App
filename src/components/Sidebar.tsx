@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const communityNav = [
@@ -70,13 +71,14 @@ export function Sidebar() {
               : "text-white hover:bg-[#2E7D6F]/20 hover:text-[#2E7D6F]"
           }`}
         >
-          <div className="w-9 h-9 rounded-lg bg-[#2E7D6F] flex items-center justify-center text-white font-bold text-sm">
-            PV
-          </div>
-          <div>
-            <p className="text-sm font-semibold leading-tight">Park Vista</p>
-            <p className={`text-[10px] ${pathname === "/" ? "text-white/70" : "text-gray-400"}`}>Headquarters</p>
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Park Vista Senior Housing Management"
+            width={180}
+            height={40}
+            className="h-9 w-auto"
+            priority
+          />
         </Link>
       </div>
 

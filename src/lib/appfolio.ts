@@ -91,11 +91,3 @@ export function parseAmount(v: string | number | null | undefined): number {
     typeof v === "string" ? parseFloat(v.replace(/[,$]/g, "")) : parseFloat(String(v));
   return isNaN(n) ? 0 : n;
 }
-
-const EDGE_CACHE_HEADERS = {
-  "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
-};
-
-export function cachedJson(data: unknown, status = 200): Response {
-  return Response.json(data, { status, headers: EDGE_CACHE_HEADERS });
-}
